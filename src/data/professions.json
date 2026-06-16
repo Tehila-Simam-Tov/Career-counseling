@@ -1,0 +1,15 @@
+{
+  "questions": [
+    { "id": "q1", "text": "Do you like solving complex problems?" },
+    { "id": "q2", "text": "Do you enjoy visual design and aesthetics?" },
+    { "id": "q3", "text": "Do you prefer structured, rule-based work (blueprints/specs)?" },
+    { "id": "q4", "text": "Do you enjoy working with data and statistics?" }
+  ],
+  "professions": ["Software Engineer", "Graphic Designer", "Architect", "Data Scientist"],
+  "scores": {
+    "q1": { "Software Engineer": 8, "Graphic Designer": 4, "Architect": 10, "Data Scientist": 9 },
+    "q2": { "Software Engineer": 2, "Graphic Designer": 10, "Architect": 3, "Data Scientist": 1 },
+    "q3": { "Software Engineer": 6, "Graphic Designer": 1, "Architect": 10, "Data Scientist": 2 },
+    "q4": { "Software Engineer": 7, "Graphic Designer": 1, "Architect": 2, "Data Scientist": 10 }
+  }
+}
