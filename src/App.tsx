@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import data from './data/professions.json'
 import Home from './components/Home'
 import Questions from './components/Questions'
 import Subjects from './components/Subjects'
 
 type QAnswers = Record<string, boolean>
 
+type Question = { id: string; text: string }
+
 export default function App() {
-  const { questions } = data
+  const [questions, setQuestions] = useState<Question[]>([])
+  const [profileText, setProfileText] = useState('')
   const [page, setPage] = useState<'home' | 'questions' | 'results'>('home')
   const [theme, setTheme] = useState<'glass' | 'vibrant'>(() => {
     try { return (localStorage.getItem('theme') as any) || 'glass' } catch { return 'glass' }
@@ -39,6 +41,36 @@ export default function App() {
     })
   }
 
+  async function loadQuestions(text: string) {
+    const safeText = text.trim() || 'I enjoy solving problems and working with people.'
+
+    try {
+      const response = await fetch('http://localhost:5001/api/generate-questions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          profileText: safeText
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+
+      const payload = await response.json()
+      if (Array.isArray(payload?.questions) && payload.questions.length > 0) {
+        setQuestions(payload.questions)
+      } else {
+        setQuestions([])
+      }
+    } catch (error) {
+      console.warn('Failed to load AI questions:', error)
+      setQuestions([])
+    }
+  }
+
   function reset() {
     setAnswers({})
     setPage('home')
@@ -50,8 +82,13 @@ export default function App() {
         {page === 'home' && (
           <Home
             theme={theme}
+            profileText={profileText}
+            onProfileTextChange={setProfileText}
             onToggleTheme={() => setTheme(t => (t === 'glass' ? 'vibrant' : 'glass'))}
-            onStart={() => setPage('questions')}
+            onStart={async () => {
+              await loadQuestions(profileText)
+              setPage('questions')
+            }}
           />
         )}
         {page === 'questions' && (

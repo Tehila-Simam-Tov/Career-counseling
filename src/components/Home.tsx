@@ -2,10 +2,14 @@ import React from 'react'
 
 export default function Home({
   theme,
+  profileText,
+  onProfileTextChange,
   onToggleTheme,
   onStart,
 }: {
   theme: 'glass' | 'vibrant'
+  profileText: string
+  onProfileTextChange: (value: string) => void
   onToggleTheme: () => void
   onStart: () => void
 }) {
@@ -61,7 +65,21 @@ export default function Home({
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+        <div className="mx-auto mt-8 max-w-3xl rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-sm">
+          <label htmlFor="profile-text" className="mb-2 block text-left text-sm font-semibold text-slate-700">
+            Tell us about yourself
+          </label>
+          <textarea
+            id="profile-text"
+            rows={5}
+            value={profileText}
+            onChange={(e) => onProfileTextChange(e.target.value)}
+            placeholder="Example: I love writing, solving problems, and helping people learn new things."
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none ring-0 placeholder:text-slate-400 focus:border-indigo-300 focus:bg-white"
+          />
+        </div>
+
+        <div className="mt-6 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <button
             onClick={onStart}
             className="button button-primary px-10 py-4 text-white shadow-2xl shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-transform duration-200 hover:-translate-y-1 btn-cta"
