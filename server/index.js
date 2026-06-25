@@ -16,6 +16,33 @@ app.use(express.json({ limit: '1mb' }));
 const geminiApiKey = process.env.GEMINI_API_KEY;
 const geminiModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
+function buildQuestionsPrompt(profileText) {
+  return `
+You are a senior career counselor AI.
+
+Based on the user's profile below, generate exactly 4 yes/no questions that will help identify the most suitable professions for them.
+Each question should be specific to the user's traits and directly help distinguish between relevant career paths.
+
+Rules:
+- Output ONLY valid JSON, no markdown, no explanation
+- Each question must be yes/no answerable
+- Questions must be tailored to the specific profile
+
+Output format:
+{
+  "questions": [
+    { "id": "q1", "text": "question text here", "options": ["Yes", "No"] },
+    { "id": "q2", "text": "question text here", "options": ["Yes", "No"] },
+    { "id": "q3", "text": "question text here", "options": ["Yes", "No"] },
+    { "id": "q4", "text": "question text here", "options": ["Yes", "No"] }
+  ]
+}
+
+User profile:
+${profileText}
+`;
+}
+
 function buildRecommendationPrompt(profileText, answers) {
   return `
 You are a senior career counselor AI.
@@ -128,6 +155,27 @@ async function callGemini(prompt) {
     return { _error: true };
   }
 }
+
+app.post("/api/generate-questions", async (req, res) => {
+  try {
+    const profileText = req.body?.profileText || "";
+    console.log("📥 GENERATE-QUESTIONS PROFILE");
+    console.log(profileText);
+
+    const data = await callGemini(buildQuestionsPrompt(profileText));
+
+    if (data?._error || !Array.isArray(data?.questions)) {
+      console.log("⚠️ QUESTIONS FALLBACK");
+      return res.status(500).json({ error: "Failed to generate questions" });
+    }
+
+    return res.json(data);
+  } catch (err) {
+    console.error("❌ GENERATE-QUESTIONS ERROR");
+    console.error(err);
+    return res.status(500).json({ error: "Failed to generate questions" });
+  }
+});
 
 app.post("/api/recommend-professions", async (req, res) => {
   try {
