@@ -1,5 +1,6 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
+const { createSession, getSession, updateSession } = require('./db/sessionStore');
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
@@ -156,52 +157,52 @@ async function callGemini(prompt) {
   }
 }
 
+// ── /api/generate-questions ───────────────────────────────────────────────
 app.post("/api/generate-questions", async (req, res) => {
   try {
-    const profileText = req.body?.profileText || "";
-    console.log("📥 GENERATE-QUESTIONS PROFILE");
-    console.log(profileText);
+    let session;
+    if (req.body?.sessionId) {
+      session = getSession(req.body.sessionId);
+      if (!session) return res.status(404).json({ error: "Session not found" });
+    } else {
+      const profileText = req.body?.profileText || "";
+      session = createSession(profileText);
+    }
 
-    const data = await callGemini(buildQuestionsPrompt(profileText));
+    console.log("📥 GENERATE-QUESTIONS session", session.id);
+    const data = await callGemini(buildQuestionsPrompt(session.profile));
 
     if (data?._error || !Array.isArray(data?.questions)) {
       console.log("⚠️ QUESTIONS FALLBACK");
       return res.status(500).json({ error: "Failed to generate questions" });
     }
 
-    return res.json(data);
+    updateSession(session.id, { questions: data.questions });
+    return res.json({ sessionId: session.id, questions: data.questions });
   } catch (err) {
-    console.error("❌ GENERATE-QUESTIONS ERROR");
-    console.error(err);
+    console.error("❌ GENERATE-QUESTIONS ERROR", err);
     return res.status(500).json({ error: "Failed to generate questions" });
   }
 });
 
+// ── /api/recommend-professions ────────────────────────────────────────────
 app.post("/api/recommend-professions", async (req, res) => {
   try {
-    const profileText = req.body?.profileText || "";
-    const answers = req.body?.answers || [];
+    const session = getSession(req.body?.sessionId);
+    if (!session) return res.status(404).json({ error: "Session not found" });
 
-    console.log("📥 PROFILE");
-    console.log(profileText);
-
-    console.log("📥 ANSWERS");
-    console.log(JSON.stringify(answers, null, 2));
-
-    const data = await callGemini(
-      buildRecommendationPrompt(profileText, answers)
-    );
+    console.log("📥 RECOMMEND session", session.id);
+    const data = await callGemini(buildRecommendationPrompt(session.profile, session.answers));
 
     if (data?._error || !data?.recommendations) {
       console.log("⚠️ USING FALLBACK");
       return res.json(fallbackRecommendations());
     }
 
+    updateSession(session.id, { recommendations: data.recommendations });
     return res.json(data);
-
   } catch (err) {
-    console.error("❌ ROUTE_ERROR");
-    console.error(err);
+    console.error("❌ ROUTE_ERROR", err);
     return res.json(fallbackRecommendations());
   }
 });
@@ -231,9 +232,8 @@ ${JSON.stringify(skills, null, 2)}
 `;
 }
 
-// ── Agent with proper tool-calling loop ──────────────────────────────────
+// ── Agent with proper tool-calling loop ───────────────────────────────────
 
-// Tool definition sent to Gemini
 const SKILL_ANALYSIS_TOOL_DEF = {
   name: "skill_analysis",
   description: "Analyzes a list of questions with user answers and returns a list of identified skills with confidence percentages.",
@@ -257,7 +257,6 @@ const SKILL_ANALYSIS_TOOL_DEF = {
   }
 };
 
-// Execute the skill_analysis tool — calls Gemini as the skill extractor
 async function executeSkillAnalysis(qaPairs) {
   console.log("🔧 TOOL: skill_analysis called with", qaPairs.length, "Q&A pairs");
   const prompt = `
@@ -282,7 +281,6 @@ ${JSON.stringify(qaPairs, null, 2)}
   return result.skills;
 }
 
-// Dispatch any tool call the model requests
 async function dispatchTool(toolName, toolArgs) {
   if (toolName === "skill_analysis") {
     return executeSkillAnalysis(toolArgs.qa_pairs || []);
@@ -290,7 +288,6 @@ async function dispatchTool(toolName, toolArgs) {
   throw new Error(`Unknown tool: ${toolName}`);
 }
 
-// One Gemini call that supports tool declarations
 async function callGeminiWithTools(messages, tools) {
   console.log("🤖 Gemini (tools) request, messages:", messages.length);
   try {
@@ -354,23 +351,34 @@ ${JSON.stringify(allQA, null, 2)}
 }
 
 const MAX_AGENT_ROUNDS = 3;
-const MAX_LOOP_ITERATIONS = 5;  // hard cap on the agentic loop
+const MAX_LOOP_ITERATIONS = 5;
 
+// ── /api/agent ────────────────────────────────────────────────────────────
 app.post("/api/agent", async (req, res) => {
   try {
-    const { profileText = "", allQA = [], round = 0 } = req.body;
-    console.log("🤖 AGENT round", round, "/ max", MAX_AGENT_ROUNDS);
+    const session = getSession(req.body?.sessionId);
+    if (!session) return res.status(404).json({ error: "Session not found" });
 
-    // If round limit reached, skip the decision step and go straight to tool
+    // Merge incoming new answers into session
+    if (Array.isArray(req.body?.newAnswers) && req.body.newAnswers.length > 0) {
+      const merged = [...(session.answers || []), ...req.body.newAnswers];
+      updateSession(session.id, { answers: merged });
+      session.answers = merged;
+    }
+
+    const profileText = session.profile;
+    const allQA = session.answers || [];
+    const round = session.agentRound || 0;
+    console.log("🤖 AGENT session", session.id, "round", round, "/ max", MAX_AGENT_ROUNDS);
+
     if (round >= MAX_AGENT_ROUNDS) {
       console.log("⛔ MAX ROUNDS — forcing skill_analysis");
       const skills = await executeSkillAnalysis(
         allQA.map(q => ({ question: q.question, answer: q.answer }))
       );
-      return await produceRecommendations(res, profileText, allQA, skills);
+      return await produceRecommendations(res, session, profileText, allQA, skills);
     }
 
-    // ── Agentic tool-calling loop ──────────────────────────────────────────
     const messages = [
       { role: "user", parts: [{ text: buildAgentSystemPrompt(profileText, allQA, round) }] }
     ];
@@ -388,13 +396,11 @@ app.post("/api/agent", async (req, res) => {
       const candidate = raw?.candidates?.[0];
       const parts = candidate?.content?.parts || [];
 
-      // Check for function_call parts
       const funcCallPart = parts.find(p => p.functionCall);
       if (funcCallPart) {
         const { name, args } = funcCallPart.functionCall;
         console.log("🔧 Model requested tool:", name);
 
-        // Append model turn + tool result to conversation
         messages.push({ role: "model", parts });
 
         const toolResult = await dispatchTool(name, args);
@@ -409,10 +415,9 @@ app.post("/api/agent", async (req, res) => {
             }
           }]
         });
-        continue; // let the model process tool result
+        continue;
       }
 
-      // Text response — parse JSON
       const text = parts.find(p => p.text)?.text || "";
       console.log("📩 AGENT TEXT OUTPUT:", text);
 
@@ -428,21 +433,20 @@ app.post("/api/agent", async (req, res) => {
             ? q.options
             : ["Strongly agree", "Somewhat agree", "Disagree"]
         }));
+        updateSession(session.id, { agentRound: round + 1 });
         return res.json({ action: "ask_questions", questions, round });
       }
 
       if (parsed.action === "recommend_professions") {
         if (!collectedSkills) {
-          // Model skipped tool call — force it
           console.log("⚠️ Model skipped tool, forcing skill_analysis");
           collectedSkills = await executeSkillAnalysis(
             allQA.map(q => ({ question: q.question, answer: q.answer }))
           );
         }
-        return await produceRecommendations(res, profileText, allQA, collectedSkills, parsed.recommendations);
+        return await produceRecommendations(res, session, profileText, allQA, collectedSkills, parsed.recommendations);
       }
 
-      // Unexpected response — break
       console.error("❌ Unexpected agent action:", parsed);
       break;
     }
@@ -451,7 +455,7 @@ app.post("/api/agent", async (req, res) => {
     const skills = await executeSkillAnalysis(
       allQA.map(q => ({ question: q.question, answer: q.answer }))
     );
-    return await produceRecommendations(res, profileText, allQA, skills);
+    return await produceRecommendations(res, session, profileText, allQA, skills);
 
   } catch (err) {
     console.error("❌ AGENT_ERROR", err);
@@ -459,7 +463,7 @@ app.post("/api/agent", async (req, res) => {
   }
 });
 
-async function produceRecommendations(res, profileText, allQA, skills, existingRecs) {
+async function produceRecommendations(res, session, profileText, allQA, skills, existingRecs) {
   let recommendations = existingRecs;
   if (!recommendations) {
     const recResult = await callGemini(
@@ -470,6 +474,7 @@ async function produceRecommendations(res, profileText, allQA, skills, existingR
     }
     recommendations = recResult.recommendations;
   }
+  updateSession(session.id, { skills, recommendations });
   return res.json({
     action: "recommend_professions",
     skills: skills.map(s => ({ name: s.skill ?? s.name, percentage: s.percentage })),

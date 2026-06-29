@@ -1,0 +1,74 @@
+{
+  "015ea2c5-499c-4129-b8af-348982aa909e": {
+    "id": "015ea2c5-499c-4129-b8af-348982aa909e",
+    "profile": "I love solving problems, working with data, and building analytical systems.",
+    "questions": [
+      {
+        "id": "q1",
+        "text": "When approaching a new problem, what aspect do you find most engaging?",
+        "options": [
+          "Delving into abstract concepts and theoretical frameworks to understand the core issue.",
+          "Designing and implementing practical, data-driven solutions with tangible outcomes.",
+          "Optimizing existing processes or systems to improve efficiency and performance."
+        ]
+      },
+      {
+        "id": "q2",
+        "text": "What part of working with data truly excites you?",
+        "options": [
+          "Exploring raw datasets to uncover hidden patterns and generate novel insights.",
+          "Building predictive models and algorithms to automate decision-making or forecasting.",
+          "Ensuring data quality, integrity, and constructing robust data pipelines and infrastructure."
+        ]
+      },
+      {
+        "id": "q3",
+        "text": "In the context of 'building analytical systems', where do you prefer to focus your efforts?",
+        "options": [
+          "Architecting the overall system and designing its technical blueprint and components.",
+          "Writing code and implementing the core logic for data processing, analysis, and modeling.",
+          "Creating user-friendly interfaces or visualizations to make data insights accessible to others."
+        ]
+      },
+      {
+        "id": "q4",
+        "text": "What is your ideal level of interaction with the impact of your analytical work?",
+        "options": [
+          "Delivering a technically sound solution and moving on to the next complex challenge.",
+          "Collaborating closely with a team to continuously refine and evolve the system or solution.",
+          "Presenting findings and influencing strategic decisions based on the insights derived."
+        ]
+      }
+    ],
+    "answers": [
+      {
+        "questionId": "q1",
+        "question": "How often do you work with large datasets?",
+        "selectedOption": 0,
+        "answer": "Very often"
+      },
+      {
+        "questionId": "q2",
+        "question": "Do you prefer working alone or in a team?",
+        "selectedOption": 2,
+        "answer": "Team"
+      },
+      {
+        "questionId": "q3",
+        "question": "How comfortable are you with programming?",
+        "selectedOption": 0,
+        "answer": "Very comfortable"
+      },
+      {
+        "questionId": "q4",
+        "question": "Do you enjoy building systems from scratch?",
+        "selectedOption": 0,
+        "answer": "Yes always"
+      }
+    ],
+    "skills": [],
+    "recommendations": [],
+    "agentRound": 1,
+    "createdAt": "2026-06-29T17:21:47.173Z"
+  }
+}
