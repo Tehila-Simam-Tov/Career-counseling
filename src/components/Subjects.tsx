@@ -2,16 +2,20 @@ import React, { useState } from 'react'
 
 type Recommendation = { profession: string; score: number; reason: string }
 
+type Skill = { name: string; percentage: number }
+
 type Question = { id: string; text: string; options?: string[] }
 
 export default function Subjects({
   recommendations,
+  skills,
   questions,
   answers,
   onRetake,
   onBack,
 }: {
   recommendations: Recommendation[]
+  skills: Skill[]
   questions: Question[]
   answers: Record<string, number>
   onRetake: () => void
@@ -29,6 +33,20 @@ export default function Subjects({
         </div>
         <div className="rounded-full bg-indigo-50 px-4 py-2 text-sm text-indigo-700">Ranked from strongest to weakest fit</div>
       </div>
+
+      {skills.length > 0 && (
+        <div className="mb-6 rounded-[28px] border border-slate-200 bg-slate-50/80 p-5 shadow-sm">
+          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.26em] text-indigo-600">Identified Skills</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {skills.map(s => (
+              <div key={s.name} className="flex items-center justify-between rounded-2xl bg-white px-4 py-2 text-sm shadow-sm">
+                <span className="font-medium text-slate-800">{s.name}</span>
+                <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">{s.percentage}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         {ranked.map(item => {

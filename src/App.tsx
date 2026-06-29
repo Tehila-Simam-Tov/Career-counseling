@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react'
 import Home from './components/Home'
 import Questions from './components/Questions'
 import Subjects from './components/Subjects'
+import LoadingOverlay from './components/LoadingOverlay'
 
 type QAnswers = Record<string, number>
 
 type Question = { id: string; text: string; options?: string[] }
 type Recommendation = { profession: string; score: number; reason: string }
-type QuestionAnswer = { questionId: string; selectedOption: number }
+type Skill = { name: string; percentage: number }
+type QuestionAnswer = { questionId: string; question: string; selectedOption: number; answer: string }
 
 function buildFallbackQuestions(profileText: string): Question[] {
   const text = profileText.toLowerCase()
@@ -17,7 +19,7 @@ function buildFallbackQuestions(profileText: string): Question[] {
     baseQuestions.push({
       id: 'q1',
       text: 'Do you enjoy solving complex problems and uncovering patterns?',
-      options: ['Not really', 'Sometimes', 'Usually', 'Absolutely']
+      options: ['Absolutely — it energises me', 'Sometimes, depending on the topic', 'Not really my thing']
     })
   }
 
@@ -25,31 +27,31 @@ function buildFallbackQuestions(profileText: string): Question[] {
     baseQuestions.push({
       id: 'q2',
       text: 'Do you enjoy helping others and working closely with people?',
-      options: ['Not really', 'Sometimes', 'Usually', 'Absolutely']
+      options: ['Yes, it is very fulfilling', 'In small doses', 'I prefer working independently']
     })
   }
 
   if (/design|art|create|music|write|visual|build|craft/.test(text)) {
     baseQuestions.push({
       id: 'q3',
-      text: 'Do you enjoy creating, designing, or expressing ideas in a visual way?',
-      options: ['Not really', 'Sometimes', 'Usually', 'Absolutely']
+      text: 'Do you enjoy creating, designing, or expressing ideas visually?',
+      options: ['Constantly — creativity drives me', 'Occasionally', 'Rarely']
     })
   }
 
   if (/plan|organize|detail|structure|manage|project/.test(text)) {
     baseQuestions.push({
       id: 'q4',
-      text: 'Do you prefer structure, planning, and carefully organized work?',
-      options: ['Not really', 'Sometimes', 'Usually', 'Absolutely']
+      text: 'Do you prefer structure, planning, and carefully organised work?',
+      options: ['Yes, I thrive with clear structure', 'A balance of both', 'I prefer flexibility and spontaneity']
     })
   }
 
   while (baseQuestions.length < 4) {
     baseQuestions.push({
       id: `q${baseQuestions.length + 1}`,
-      text: 'Would you be interested in a profession that matches your strengths and interests?',
-      options: ['Not really', 'Maybe', 'Probably', 'Definitely']
+      text: 'How important is it that your career aligns closely with your personal interests?',
+      options: ['Extremely important', 'Somewhat important', 'Not a priority']
     })
   }
 
@@ -59,12 +61,19 @@ function buildFallbackQuestions(profileText: string): Question[] {
 export default function App() {
   const [questions, setQuestions] = useState<Question[]>([])
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
+  const [skills, setSkills] = useState<Skill[]>([])
   const [profileText, setProfileText] = useState('')
-  const [page, setPage] = useState<'home' | 'questions' | 'results'>('home')
+  const [page, setPage] = useState<'home' | 'questions' | 'agent' | 'results'>('home')
+  const [agentQuestions, setAgentQuestions] = useState<Question[]>([])
+  const [agentAnswers, setAgentAnswers] = useState<QAnswers>({})
+  const [agentRound, setAgentRound] = useState(0)
+  // allQA accumulates Q&A pairs across all rounds for the agent
+  const allQARef = React.useRef<QuestionAnswer[]>([])
   const [theme, setTheme] = useState<'glass' | 'vibrant'>(() => {
     try { return (localStorage.getItem('theme') as any) || 'glass' } catch { return 'glass' }
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [loadingLabel, setLoadingLabel] = useState<string | undefined>(undefined)
 
   const [answers, setAnswers] = useState<QAnswers>(() => {
     try {
@@ -94,9 +103,9 @@ export default function App() {
 
   async function loadQuestions(text: string) {
     const safeText = text.trim() || 'I enjoy solving problems, learning new skills, and working with people.'
-
+    setLoadingLabel('Generating personalised questions...')
     try {
-      const response = await fetch('http://localhost:5001/api/generate-questions', {
+      const response = await fetch('http://localhost:5002/api/generate-questions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -121,13 +130,19 @@ export default function App() {
   }
 
   async function loadRecommendations(text: string, currentAnswers: QAnswers) {
+    setLoadingLabel('Generating recommendations...')
     const safeText = text.trim() || 'I enjoy solving problems, learning new skills, and working with people.'
     const answerList: QuestionAnswer[] = Object.entries(currentAnswers)
       .filter(([, selectedOption]) => selectedOption !== undefined)
-      .map(([questionId, selectedOption]) => ({ questionId, selectedOption }))
+      .map(([questionId, selectedOption]) => ({
+        questionId,
+        question: questions.find(q => q.id === questionId)?.text ?? questionId,
+        selectedOption,
+        answer: questions.find(q => q.id === questionId)?.options?.[selectedOption] ?? (selectedOption === 0 ? 'Yes' : 'No')
+      }))
 
     try {
-      const response = await fetch('http://localhost:5001/api/recommend-professions', {
+      const response = await fetch('http://localhost:5002/api/recommend-professions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -158,15 +173,70 @@ export default function App() {
     ])
   }
 
+  function buildQAPairs(qs: Question[], ans: QAnswers): QuestionAnswer[] {
+    return qs
+      .filter(q => ans[q.id] !== undefined)
+      .map(q => ({
+        questionId: q.id,
+        question: q.text,
+        selectedOption: ans[q.id],
+        answer: q.options?.[ans[q.id]] ?? (ans[q.id] === 0 ? 'Yes' : 'No')
+      }))
+  }
+
+  async function runAgent(extraQA: QuestionAnswer[], round: number) {
+    setIsSubmitting(true)
+    setLoadingLabel(round === 0 ? 'Analysing your answers...' : `Follow-up round ${round} — thinking...`)
+    try {
+      const response = await fetch('http://localhost:5002/api/agent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profileText, allQA: extraQA, round })
+      })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const data = await response.json()
+
+      if (data.action === 'ask_questions') {
+        setAgentQuestions(data.questions)
+        setAgentAnswers({})
+        setAgentRound(round + 1)   // next round number shown to user (1-based)
+        setPage('agent')
+      } else {
+        // recommend_professions
+        const recs = (data.recommendations || []).map((r: any) => ({
+          profession: r.profession,
+          score: r.match_percentage ?? r.score ?? 0,
+          reason: r.reason
+        }))
+        setRecommendations(recs)
+        setSkills(data.skills || [])
+        setPage('results')
+      }
+    } catch (err) {
+      console.warn('Agent call failed, falling back to direct recommendation', err)
+      await loadRecommendations(profileText, answers)
+      setPage('results')
+    } finally {
+      setIsSubmitting(false)
+      setLoadingLabel(undefined)
+    }
+  }
+
   function reset() {
     setAnswers({})
     setQuestions([])
     setRecommendations([])
+    setSkills([])
+    setAgentQuestions([])
+    setAgentAnswers({})
+    setAgentRound(0)
+    allQARef.current = []
     setPage('home')
   }
 
   return (
     <div className={`min-h-screen flex items-center justify-center p-6 ${theme === 'vibrant' ? 'theme-vibrant' : 'theme-glass'}`}>
+      <LoadingOverlay visible={isSubmitting} label={loadingLabel} />
       <div className="w-full max-w-5xl">
         {page === 'home' && (
           <Home
@@ -188,12 +258,33 @@ export default function App() {
             answers={answers}
             onChange={handleAnswerChange}
             onComplete={async () => {
-              setIsSubmitting(true)
-              await loadRecommendations(profileText, answers)
-              setIsSubmitting(false)
-              setPage('results')
+              const initialQA = buildQAPairs(questions, answers)
+              allQARef.current = initialQA
+              await runAgent(initialQA, 0)
             }}
             onBack={() => setPage('home')}
+            onResetAnswers={reset}
+            isSubmitting={isSubmitting}
+          />
+        )}
+        {page === 'agent' && (
+          <Questions
+            questions={agentQuestions}
+            answers={agentAnswers}
+            agentRound={agentRound}
+            onChange={(qid, val) => setAgentAnswers(prev => {
+              const next = { ...prev }
+              if (val === undefined) delete next[qid]
+              else next[qid] = val
+              return next
+            })}
+            onComplete={async () => {
+              const roundQA = buildQAPairs(agentQuestions, agentAnswers)
+              const combined = [...allQARef.current, ...roundQA]
+              allQARef.current = combined
+              await runAgent(combined, agentRound)
+            }}
+            onBack={() => setPage('questions')}
             onResetAnswers={reset}
             isSubmitting={isSubmitting}
           />
@@ -201,6 +292,7 @@ export default function App() {
         {page === 'results' && (
           <Subjects
             recommendations={recommendations}
+            skills={skills}
             questions={questions}
             answers={answers}
             onRetake={reset}
