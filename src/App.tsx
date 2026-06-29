@@ -72,6 +72,7 @@ export default function App() {
   const [theme, setTheme] = useState<'glass' | 'vibrant'>(() => {
     try { return (localStorage.getItem('theme') as any) || 'glass' } catch { return 'glass' }
   })
+  const [sessionId, setSessionId] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [loadingLabel, setLoadingLabel] = useState<string | undefined>(undefined)
 
@@ -107,18 +108,15 @@ export default function App() {
     try {
       const response = await fetch('http://localhost:5002/api/generate-questions', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ profileText: safeText })
       })
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
-      }
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
 
       const payload = await response.json()
       if (Array.isArray(payload?.questions) && payload.questions.length > 0) {
+        setSessionId(payload.sessionId)
         setQuestions(payload.questions)
         return
       }
@@ -129,31 +127,17 @@ export default function App() {
     setQuestions(buildFallbackQuestions(safeText))
   }
 
-  async function loadRecommendations(text: string, currentAnswers: QAnswers) {
+  async function loadRecommendations() {
+    if (!sessionId) return
     setLoadingLabel('Generating recommendations...')
-    const safeText = text.trim() || 'I enjoy solving problems, learning new skills, and working with people.'
-    const answerList: QuestionAnswer[] = Object.entries(currentAnswers)
-      .filter(([, selectedOption]) => selectedOption !== undefined)
-      .map(([questionId, selectedOption]) => ({
-        questionId,
-        question: questions.find(q => q.id === questionId)?.text ?? questionId,
-        selectedOption,
-        answer: questions.find(q => q.id === questionId)?.options?.[selectedOption] ?? (selectedOption === 0 ? 'Yes' : 'No')
-      }))
-
     try {
       const response = await fetch('http://localhost:5002/api/recommend-professions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          profileText: safeText,
-          answers: answerList
-        })
+        body: JSON.stringify({ sessionId })
       })
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
-      }
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
 
       const payload = await response.json()
       if (Array.isArray(payload?.recommendations) && payload.recommendations.length > 0) {
@@ -184,14 +168,16 @@ export default function App() {
       }))
   }
 
-  async function runAgent(extraQA: QuestionAnswer[], round: number) {
+  async function runAgent(newAnswers: QuestionAnswer[]) {
+    if (!sessionId) return
+    const round = agentRound
     setIsSubmitting(true)
     setLoadingLabel(round === 0 ? 'Analysing your answers...' : `Follow-up round ${round} — thinking...`)
     try {
       const response = await fetch('http://localhost:5002/api/agent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profileText, allQA: extraQA, round })
+        body: JSON.stringify({ sessionId, newAnswers })
       })
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       const data = await response.json()
@@ -199,7 +185,7 @@ export default function App() {
       if (data.action === 'ask_questions') {
         setAgentQuestions(data.questions)
         setAgentAnswers({})
-        setAgentRound(round + 1)   // next round number shown to user (1-based)
+        setAgentRound(prev => prev + 1)
         setPage('agent')
       } else {
         // recommend_professions
@@ -214,7 +200,7 @@ export default function App() {
       }
     } catch (err) {
       console.warn('Agent call failed, falling back to direct recommendation', err)
-      await loadRecommendations(profileText, answers)
+      await loadRecommendations()
       setPage('results')
     } finally {
       setIsSubmitting(false)
@@ -230,6 +216,7 @@ export default function App() {
     setAgentQuestions([])
     setAgentAnswers({})
     setAgentRound(0)
+    setSessionId(null)
     allQARef.current = []
     setPage('home')
   }
@@ -260,7 +247,7 @@ export default function App() {
             onComplete={async () => {
               const initialQA = buildQAPairs(questions, answers)
               allQARef.current = initialQA
-              await runAgent(initialQA, 0)
+              await runAgent(initialQA)
             }}
             onBack={() => setPage('home')}
             onResetAnswers={reset}
@@ -280,9 +267,8 @@ export default function App() {
             })}
             onComplete={async () => {
               const roundQA = buildQAPairs(agentQuestions, agentAnswers)
-              const combined = [...allQARef.current, ...roundQA]
-              allQARef.current = combined
-              await runAgent(combined, agentRound)
+              allQARef.current = [...allQARef.current, ...roundQA]
+              await runAgent(roundQA)
             }}
             onBack={() => setPage('questions')}
             onResetAnswers={reset}
