@@ -13,6 +13,7 @@ export default function Subjects({
   answers,
   onRetake,
   onBack,
+  onValidate,
 }: {
   recommendations: Recommendation[]
   skills: Skill[]
@@ -20,6 +21,7 @@ export default function Subjects({
   answers: Record<string, number>
   onRetake: () => void
   onBack: () => void
+  onValidate?: () => void
 }) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
   const ranked = [...recommendations].sort((a, b) => b.score - a.score)
@@ -98,7 +100,17 @@ export default function Subjects({
 
       <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-between">
         <button onClick={onBack} className="button button-secondary px-6">Back</button>
-        <button onClick={onRetake} className="button button-primary px-6">Retake</button>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          {onValidate && recommendations.length > 0 && (
+            <button
+              onClick={onValidate}
+              className="button button-primary px-6 bg-gradient-to-r from-violet-500 to-indigo-500"
+            >
+              🧪 Validate with Simulation
+            </button>
+          )}
+          <button onClick={onRetake} className="button button-primary px-6">Retake</button>
+        </div>
       </div>
     </div>
   )

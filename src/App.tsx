@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react'
 import Home from './components/Home'
 import Questions from './components/Questions'
 import Subjects from './components/Subjects'
+import Simulation from './components/Simulation'
 import LoadingOverlay from './components/LoadingOverlay'
+import type { UserSkill } from './types/simulation'
 
 type QAnswers = Record<string, number>
 
@@ -63,7 +65,7 @@ export default function App() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [skills, setSkills] = useState<Skill[]>([])
   const [profileText, setProfileText] = useState('')
-  const [page, setPage] = useState<'home' | 'questions' | 'agent' | 'results'>('home')
+  const [page, setPage] = useState<'home' | 'questions' | 'agent' | 'results' | 'simulation'>('home')
   const [agentQuestions, setAgentQuestions] = useState<Question[]>([])
   const [agentAnswers, setAgentAnswers] = useState<QAnswers>({})
   const [agentRound, setAgentRound] = useState(0)
@@ -223,7 +225,11 @@ export default function App() {
 
   return (
     <div className={`min-h-screen flex items-center justify-center p-6 ${theme === 'vibrant' ? 'theme-vibrant' : 'theme-glass'}`}>
-      <LoadingOverlay visible={isSubmitting} label={loadingLabel} />
+      <LoadingOverlay
+          visible={isSubmitting}
+          label={loadingLabel}
+          mode={page === 'simulation' ? 'simulation' : 'career'}
+        />
       <div className="w-full max-w-5xl">
         {page === 'home' && (
           <Home
@@ -283,6 +289,15 @@ export default function App() {
             answers={answers}
             onRetake={reset}
             onBack={() => setPage('questions')}
+            onValidate={sessionId ? () => setPage('simulation') : undefined}
+          />
+        )}
+        {page === 'simulation' && sessionId && (
+          <Simulation
+            sessionId={sessionId}
+            profession={recommendations[0]?.profession ?? ''}
+            userSkills={skills.map(s => ({ skill: s.name, confidence: s.percentage })) as UserSkill[]}
+            onStartOver={reset}
           />
         )}
       </div>

@@ -70,5 +70,280 @@
     "recommendations": [],
     "agentRound": 1,
     "createdAt": "2026-06-29T17:21:47.173Z"
+  },
+  "d7894162-9a12-44fa-ac0b-9d1831a63ed1": {
+    "id": "d7894162-9a12-44fa-ac0b-9d1831a63ed1",
+    "profile": "אני אוהבת לפתור סודוקו ותרגילי מתמטיקה מסובכים",
+    "questions": [
+      {
+        "id": "q1",
+        "text": "When solving problems, do you prefer challenges that are primarily abstract and theoretical, or those with clear real-world applications?",
+        "options": [
+          "Mainly abstract, like pure logic puzzles or theoretical math.",
+          "A balance of abstract thinking and practical, tangible outcomes.",
+          "Primarily focused on practical problems with immediate, real-world impact."
+        ]
+      },
+      {
+        "id": "q2",
+        "text": "How do you prefer to approach complex analytical tasks?",
+        "options": [
+          "Working independently, diving deep into the problem alone.",
+          "Collaborating closely with a small team of experts.",
+          "Working within a larger team, often presenting solutions to others."
+        ]
+      },
+      {
+        "id": "q3",
+        "text": "What aspect of problem-solving brings you the most satisfaction?",
+        "options": [
+          "Discovering the single, precise correct answer or optimal solution.",
+          "Designing innovative new methods or systems to tackle problems.",
+          "Implementing and optimizing existing solutions to achieve desired results."
+        ]
+      },
+      {
+        "id": "q4",
+        "text": "How do you prefer to manage the pace and variety of your analytical work?",
+        "options": [
+          "Focusing deeply on one complex problem for an extended period.",
+          "Juggling multiple analytical challenges, switching focus as needed.",
+          "Engaging in quick, iterative problem-solving in a fast-paced environment."
+        ]
+      }
+    ],
+    "answers": [
+      {
+        "questionId": "q1",
+        "question": "When solving problems, do you prefer challenges that are primarily abstract and theoretical, or those with clear real-world applications?",
+        "selectedOption": 1,
+        "answer": "A balance of abstract thinking and practical, tangible outcomes."
+      },
+      {
+        "questionId": "q2",
+        "question": "How do you prefer to approach complex analytical tasks?",
+        "selectedOption": 0,
+        "answer": "Working independently, diving deep into the problem alone."
+      },
+      {
+        "questionId": "q3",
+        "question": "What aspect of problem-solving brings you the most satisfaction?",
+        "selectedOption": 1,
+        "answer": "Designing innovative new methods or systems to tackle problems."
+      },
+      {
+        "questionId": "aq0_0",
+        "question": "When approaching a complex analytical problem, what is your primary focus?",
+        "selectedOption": 0,
+        "answer": "Ensuring the solution is logically sound and mathematically precise."
+      },
+      {
+        "questionId": "aq0_1",
+        "question": "What type of problem-solving environment do you find most stimulating?",
+        "selectedOption": 0,
+        "answer": "A quiet, independent setting where you can concentrate deeply."
+      },
+      {
+        "questionId": "aq1_0",
+        "question": "When faced with a new and complex problem, what is your initial reaction?",
+        "selectedOption": 0,
+        "answer": "Excitement and eagerness to break it down into smaller parts."
+      },
+      {
+        "questionId": "aq1_1",
+        "question": "In a work setting, what kind of tasks do you find most engaging and rewarding?",
+        "selectedOption": 0,
+        "answer": "Tasks that involve deep analysis and require precise logical reasoning."
+      },
+      {
+        "questionId": "aq2_0",
+        "question": "How do you approach learning new complex systems or theories?",
+        "selectedOption": 0,
+        "answer": "By meticulously studying the underlying principles and rules."
+      },
+      {
+        "questionId": "aq2_1",
+        "question": "When working on a project, what kind of contribution do you find most fulfilling?",
+        "selectedOption": 0,
+        "answer": "Developing the core logical framework or algorithms."
+      }
+    ],
+    "skills": [],
+    "recommendations": [],
+    "agentRound": 3,
+    "simulation": null,
+    "userSolution": null,
+    "evaluation": null,
+    "simulationScore": null,
+    "finalRecommendation": null,
+    "createdAt": "2026-06-30T17:23:11.734Z"
+  },
+  "9d67508c-0e9c-4a52-97b3-6b582a610d0e": {
+    "id": "9d67508c-0e9c-4a52-97b3-6b582a610d0e",
+    "profile": "אני מתחברת לאומנות אוהבת לתפור ולצייר",
+    "questions": [
+      {
+        "id": "q1",
+        "text": "עד כמה חשוב לך שהעיסוק באמנות, תפירה או ציור יהיה חלק מרכזי ויומיומי בפרנסה שלך?",
+        "options": [
+          "חיוני – אני רוצה שזה יהיה לב העיסוק המקצועי שלי.",
+          "רצוי – אשמח אם זה ישתלב בעבודה, אך לא חייב להיות העיקר.",
+          "פחות חשוב – אני מעדיפה שזה יישאר כתחביב אישי."
+        ]
+      },
+      {
+        "id": "q2",
+        "text": "כשאת יוצרת (תופרת, מציירת), האם את מעדיפה לעבוד על פרויקטים אישיים, או ליצור דברים עבור לקוחות/קהל?",
+        "options": [
+          "אני נהנית ליצור דברים ייחודיים עבור אחרים, עם פידבק ושיתוף פעולה.",
+          "שילוב של שניהם – גם פרויקטים אישיים וגם עבודה עבור אחרים.",
+          "אני מעדיפה להתמקד ביצירה אישית, ללא תלות בדרישות חיצוניות."
+        ]
+      },
+      {
+        "id": "q3",
+        "text": "איזה סוג של תוצר אמנותי מושך אותך יותר?",
+        "options": [
+          "מוצרים שימושיים ופונקציונליים עם נגיעה אסתטית (לבוש, עיצוב פנים, מוצרים).",
+          "יצירות אמנותיות שעיקרן ביטוי אסתטי או רגשי (ציורים, איורים, פיסול).",
+          "שילוב של שניהם, כל עוד יש מקום ליצירתיות ועיצוב."
+        ]
+      },
+      {
+        "id": "q4",
+        "text": "בסביבת עבודה, מה מושך אותך יותר?",
+        "options": [
+          "סביבה עם מסגרת ברורה ומשימות מוגדרות, שבה אני מיישמת את כישוריי.",
+          "סביבה המאפשרת גמישות רבה וחופש יצירתי, גם אם זה דורש יותר יוזמה עצמית.",
+          "שילוב של שניהם – מבנה מסוים עם מרחב לביטוי אישי."
+        ]
+      }
+    ],
+    "answers": [
+      {
+        "questionId": "q1",
+        "question": "עד כמה חשוב לך שהעיסוק באמנות, תפירה או ציור יהיה חלק מרכזי ויומיומי בפרנסה שלך?",
+        "selectedOption": 1,
+        "answer": "רצוי – אשמח אם זה ישתלב בעבודה, אך לא חייב להיות העיקר."
+      },
+      {
+        "questionId": "q2",
+        "question": "כשאת יוצרת (תופרת, מציירת), האם את מעדיפה לעבוד על פרויקטים אישיים, או ליצור דברים עבור לקוחות/קהל?",
+        "selectedOption": 0,
+        "answer": "אני נהנית ליצור דברים ייחודיים עבור אחרים, עם פידבק ושיתוף פעולה."
+      },
+      {
+        "questionId": "q3",
+        "question": "איזה סוג של תוצר אמנותי מושך אותך יותר?",
+        "selectedOption": 1,
+        "answer": "יצירות אמנותיות שעיקרן ביטוי אסתטי או רגשי (ציורים, איורים, פיסול)."
+      },
+      {
+        "questionId": "q4",
+        "question": "בסביבת עבודה, מה מושך אותך יותר?",
+        "selectedOption": 0,
+        "answer": "סביבה עם מסגרת ברורה ומשימות מוגדרות, שבה אני מיישמת את כישוריי."
+      },
+      {
+        "questionId": "aq0_0",
+        "question": "כשאת יוצרת עבור אחרים, איזה סוג של אינטראקציה את מעדיפה?",
+        "selectedOption": 0,
+        "answer": "אני מעדיפה להבין את הצרכים של הלקוח וליישם אותם ביצירה שלי."
+      },
+      {
+        "questionId": "aq0_1",
+        "question": "בהקשר של 'סביבה עם מסגרת ברורה ומשימות מוגדרות', עד כמה חשוב לך החופש האמנותי לעומת עבודה לפי הנחיות?",
+        "selectedOption": 0,
+        "answer": "אני רואה את עצמי עובדת בצוות, תחת הנחיה אמנותית ברורה."
+      }
+    ],
+    "skills": [
+      {
+        "skill": "Client-Centric Design",
+        "percentage": 90
+      },
+      {
+        "skill": "Collaboration & Teamwork",
+        "percentage": 95
+      },
+      {
+        "skill": "Aesthetic & Artistic Expression",
+        "percentage": 85
+      },
+      {
+        "skill": "Adherence to Structure & Guidelines",
+        "percentage": 90
+      },
+      {
+        "skill": "Requirements Analysis",
+        "percentage": 80
+      }
+    ],
+    "recommendations": [
+      {
+        "profession": "Graphic Designer",
+        "match_percentage": 92,
+        "reason": "This profession heavily utilizes aesthetic and artistic expression to create designs that meet client needs, often within a structured team environment and adhering to specific guidelines and requirements."
+      },
+      {
+        "profession": "Illustrator",
+        "match_percentage": 90,
+        "reason": "As an illustrator, you would apply your aesthetic and artistic expression to create visuals for clients, requiring strong collaboration and adherence to project briefs and guidelines."
+      },
+      {
+        "profession": "Fashion Designer",
+        "match_percentage": 88,
+        "reason": "This role combines your love for artistic expression, especially in sewing, with client-centric design principles, teamwork, and working within industry standards and guidelines to create clothing or accessories."
+      },
+      {
+        "profession": "Interior Designer",
+        "match_percentage": 87,
+        "reason": "You can apply your aesthetic and artistic expression to design functional and beautiful spaces for clients, requiring careful analysis of their needs, collaboration with other professionals, and adherence to structural and regulatory guidelines."
+      },
+      {
+        "profession": "Textile Designer",
+        "match_percentage": 85,
+        "reason": "This profession allows you to use your artistic and aesthetic skills, including a potential connection to sewing, to create patterns and designs for fabrics, often working with manufacturers or clients and following specific design briefs."
+      },
+      {
+        "profession": "Exhibit Designer",
+        "match_percentage": 83,
+        "reason": "This role involves using artistic expression to create engaging and structured environments for exhibitions, requiring strong collaboration, understanding of client (or museum/gallery) requirements, and adherence to spatial and thematic guidelines."
+      }
+    ],
+    "agentRound": 1,
+    "simulation": {
+      "simulationTitle": "Social Media Campaign Concept: EcoSense Hub Launch",
+      "description": "You've just received a brief from GreenTech Solutions for a social media ad campaign to launch their new 'EcoSense Hub' – a smart home device focused on energy efficiency and sustainability. Your task is to conceptualize the primary visual for this campaign, ensuring it resonates with their modern, clean, and eco-friendly brand identity and appeals to their target audience.",
+      "instructions": "Based on the client's needs and brand (modern, clean, trustworthy, eco-friendly, energy efficiency), describe your visual concept for a compelling social media ad. Please include: \n1.  **Key Visual Elements**: What imagery, illustrations, or iconography would you feature?\n2.  **Color Palette**: Suggest primary and secondary colors that align with GreenTech's brand.\n3.  **Typography Style**: What kind of font aesthetic would you recommend (e.g., sleek sans-serif, organic serif)?\n4.  **Overall Mood/Vibe**: How should the ad make the viewer feel (e.g., inspired, secure, innovative)?\n5.  **Potential Headline/Call to Action**: Propose a short, impactful text overlay for the ad.\nExplain how your design choices support GreenTech's brand message and target audience (environmentally conscious, tech-savvy homeowners).",
+      "expectedAnswerFormat": "bullet list or short paragraph"
+    },
+    "userSolution": "Key visuals: Feature the EcoSense Hub in a bright, modern smart home with energy-saving dashboards, green leaf accents, and clean eco-friendly icons.\nColor palette: Use green and white as primary colors, supported by soft blue and light gray for a fresh, sustainable look.\nTypography: Choose a sleek sans-serif font that feels modern, professional, and easy to read.\nMood: The ad should feel innovative, trustworthy, and inspiring, encouraging a smarter and greener lifestyle.\nHeadline: “Smarter Energy, Greener Living.”\nCall to Action: “Discover EcoSense Hub Today.”\nRationale: This design combines technology and sustainability, appealing to environmentally conscious homeowners who value smart solutions.",
+    "evaluation": {
+      "score": 85,
+      "strengths": [
+        "Comprehensive coverage of all requested design elements and rationale",
+        "Strong alignment of visual choices (color, typography, mood) with GreenTech's brand identity (modern, clean, eco-friendly) and target audience",
+        "Clear, concise, and well-structured presentation of the concept",
+        "Practical and actionable design suggestions relevant to a graphic designer's role"
+      ],
+      "weaknesses": [
+        "While appropriate, the design choices are somewhat conventional and lack a distinct creative edge that could differentiate the brand more strongly"
+      ],
+      "reasoning": "The solution effectively addresses all aspects of the simulation, providing a coherent and brand-aligned visual concept. The suggested elements, color palette, and typography are appropriate for the target audience and client's identity, demonstrating strong professional thinking and practical relevance. While the design choices are solid, they are somewhat conventional, suggesting an opportunity for more distinctive creative exploration to truly stand out."
+    },
+    "simulationScore": 85,
+    "finalRecommendation": {
+      "confidence": 95,
+      "recommendations": [
+        "Explore different design styles and trends to broaden your creative repertoire.",
+        "Build a portfolio showcasing diverse projects, including those with unique creative challenges.",
+        "Consider internships or entry-level positions that offer mentorship and structured creative direction.",
+        "Practice presenting design concepts, focusing on articulating the rationale behind both conventional and more innovative choices."
+      ],
+      "finalProfession": "Graphic Designer",
+      "explanation": "The user demonstrates strong foundational skills in client-centric design, collaboration, and adherence to guidelines. The simulation showed excellent practical application in conceptualizing a social media campaign, aligning well with brand identity and client needs. While the design choices were noted as conventional, this aligns with the user's expressed preference for working within clear frameworks and under artistic direction rather than prioritizing extreme artistic freedom, making Graphic Designer a highly suitable profession."
+    },
+    "createdAt": "2026-06-30T17:30:15.065Z"
   }
 }

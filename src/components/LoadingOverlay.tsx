@@ -1,20 +1,38 @@
 import React from 'react'
 
-const STEPS = [
+const STEPS_CAREER = [
   { icon: '🧠', label: 'Analyzing your profile...' },
   { icon: '🔧', label: 'Running skill analysis tool...' },
   { icon: '📊', label: 'Calculating match percentages...' },
   { icon: '🎯', label: 'Preparing recommendations...' },
 ]
 
-export default function LoadingOverlay({ visible, label }: { visible: boolean; label?: string }) {
+const STEPS_SIMULATION = [
+  { icon: '🔌', label: 'Connecting to MCP server...' },
+  { icon: '🔍', label: 'Discovering available tools...' },
+  { icon: '🧪', label: 'Generating your simulation...' },
+  { icon: '⏳', label: 'Almost ready...' },
+]
+
+const STEPS_EVALUATION = [
+  { icon: '🔌', label: 'Connecting to MCP server...' },
+  { icon: '📋', label: 'Evaluating your solution...' },
+  { icon: '🤖', label: 'Running validation agent...' },
+  { icon: '🎯', label: 'Producing final recommendation...' },
+]
+
+export default function LoadingOverlay({ visible, label, mode }: { visible: boolean; label?: string; mode?: 'career' | 'simulation' | 'evaluation' }) {
   const [step, setStep] = React.useState(0)
+
+  const STEPS = mode === 'simulation' ? STEPS_SIMULATION
+    : mode === 'evaluation' ? STEPS_EVALUATION
+    : STEPS_CAREER
 
   React.useEffect(() => {
     if (!visible) { setStep(0); return }
     const id = setInterval(() => setStep(s => (s + 1) % STEPS.length), 1800)
     return () => clearInterval(id)
-  }, [visible])
+  }, [visible, STEPS.length])
 
   if (!visible) return null
 
