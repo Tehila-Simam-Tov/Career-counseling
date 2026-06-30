@@ -22,11 +22,17 @@ function createSession(profile) {
   db[id] = {
     id,
     profile,
-    questions: [],
-    answers: [],
-    skills: [],
-    recommendations: [],
-    agentRound: 0,
+    questions:           [],
+    answers:             [],
+    skills:              [],
+    recommendations:     [],
+    agentRound:          0,
+    // Simulation workflow fields
+    simulation:          null,
+    userSolution:        null,
+    evaluation:          null,
+    simulationScore:     null,
+    finalRecommendation: null,
     createdAt: new Date().toISOString()
   };
   writeDB(db);
